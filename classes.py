@@ -3,6 +3,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from pydantic import BaseModel, Field, RootModel
 from sqlalchemy.orm import relationship
 import enum
+from typing import Optional
+from typing import Dict
+
 from config  import *
 
 Base = declarative_base()
@@ -18,5 +21,10 @@ class Task(Base):
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=True)
     status = Column(Enum(StatusEnum), default=StatusEnum.PLAN)
+
+class TaskRequest(BaseModel):
+    name: str
+    description: Optional[str] = Field(None)
+    status: Optional[str] = Field(StatusEnum.PLAN)
 
 Base.metadata.create_all(bind=create_engine(DATABASE_URL))
