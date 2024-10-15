@@ -50,3 +50,22 @@ async def post_task(task_request: TaskRequest = None):
         return {"detail": "Задача загружена успешно", "task_id": new_task.id}
     finally:
         db.close()
+
+@app.delete("/task/{task_id}")
+async def delete_task(task_id: int):
+    db = SessionLocal()
+    try:
+        # Ищем задачу по ID
+        task_to_delete = db.query(Task).filter(Task.name == task_id).first()
+
+        # Если задача не найдена, выбрасываем ошибку
+        if task_to_delete is None:
+            raise HTTPException(status_code=404, detail="Задача не найдена")
+
+        # Удаление задачи
+        db.delete(task_to_delete)
+        db.commit()
+        
+        return {"detail": f"Задача с ID {task_id} успешно удалена"}
+    finally:
+        db.close()
