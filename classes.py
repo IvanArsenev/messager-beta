@@ -27,4 +27,7 @@ class TaskRequest(BaseModel):
     description: Optional[str] = Field(None)
     status: Optional[str] = Field(StatusEnum.PLAN)
 
+class StatusUpdateRequest(BaseModel):
+    status: StatusEnum
+
 Base.metadata.create_all(bind=create_engine(DATABASE_URL))

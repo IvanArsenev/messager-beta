@@ -56,7 +56,7 @@ async def delete_task(task_id: int):
     db = SessionLocal()
     try:
         # Ищем задачу по ID
-        task_to_delete = db.query(Task).filter(Task.name == task_id).first()
+        task_to_delete = db.query(Task).filter(Task.id == task_id).first()
 
         # Если задача не найдена, выбрасываем ошибку
         if task_to_delete is None:
@@ -67,5 +67,26 @@ async def delete_task(task_id: int):
         db.commit()
         
         return {"detail": f"Задача с ID {task_id} успешно удалена"}
+    finally:
+        db.close()
+
+@app.put("/task/{task_id}/done")
+async def done_task(task_id: int):
+    db = SessionLocal()
+    try:
+        # Ищем задачу по ID
+        task_to_done = db.query(Task).filter(Task.id == task_id).first()
+
+        # Если задача не найдена, выбрасываем ошибку
+        if task_to_done is None:
+            raise HTTPException(status_code=404, detail="Задача не найдена")
+
+        # Обновление статуса задачи
+        if task_to_done.status != StatusEnum.DONE:
+            task_to_done.status = StatusEnum.DONE
+            db.commit()
+            return {"detail": f"Статус задачи с ID {task_id} успешно изменён на {task_to_done.status.value}"}
+        else:
+            return {"detail": f"Задача с ID {task_id} уже имеет статус {task_to_done.status.value}"}
     finally:
         db.close()
