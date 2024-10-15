@@ -15,6 +15,17 @@ class StatusEnum(str, enum.Enum):
     IN_PROGRESS = "Выполняется"
     DONE = "Готово"
 
+    @classmethod
+    def from_str(cls, status_str: str):
+        mapping = {
+            "PLAN": cls.PLAN,
+            "IN_PROGRESS": cls.IN_PROGRESS,
+            "DONE": cls.DONE
+        }
+        if status_str not in mapping:
+            raise ValueError(f"Недопустимый статус: {status_str}")
+        return mapping[status_str]
+
 class Task(Base):
     __tablename__ = 'tasks'
     id = Column(Integer, primary_key=True, index=True)
@@ -28,6 +39,6 @@ class TaskRequest(BaseModel):
     status: Optional[str] = Field(StatusEnum.PLAN)
 
 class StatusUpdateRequest(BaseModel):
-    status: StatusEnum
+    status: str  # Ожидается статус в английском формате
 
 Base.metadata.create_all(bind=create_engine(DATABASE_URL))

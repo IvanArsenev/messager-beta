@@ -70,23 +70,29 @@ async def delete_task(task_id: int):
     finally:
         db.close()
 
-@app.put("/task/{task_id}/done")
-async def done_task(task_id: int):
+@app.put("/task/{task_id}/status")
+async def update_task_status(task_id: int, status_request: StatusUpdateRequest):
     db = SessionLocal()
     try:
         # Ищем задачу по ID
-        task_to_done = db.query(Task).filter(Task.id == task_id).first()
+        task_to_update = db.query(Task).filter(Task.id == task_id).first()
 
         # Если задача не найдена, выбрасываем ошибку
-        if task_to_done is None:
+        if task_to_update is None:
             raise HTTPException(status_code=404, detail="Задача не найдена")
 
-        # Обновление статуса задачи
-        if task_to_done.status != StatusEnum.DONE:
-            task_to_done.status = StatusEnum.DONE
+        # Преобразуем английский статус в русский
+        try:
+            new_status = StatusEnum.from_str(status_request.status)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+        # Обновляем статус задачи
+        if task_to_update.status != new_status:
+            task_to_update.status = new_status
             db.commit()
-            return {"detail": f"Статус задачи с ID {task_id} успешно изменён на {task_to_done.status.value}"}
+            return {"detail": f"Статус задачи с ID {task_id} успешно изменён на {task_to_update.status.value}"}
         else:
-            return {"detail": f"Задача с ID {task_id} уже имеет статус {task_to_done.status.value}"}
+            return {"detail": f"Задача с ID {task_id} уже имеет статус {task_to_update.status.value}"}
     finally:
         db.close()
