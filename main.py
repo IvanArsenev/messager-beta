@@ -56,7 +56,7 @@ async def delete_task(task_id: int):
     db = SessionLocal()
     try:
         # Ищем задачу по ID
-        task_to_delete = db.query(Task).filter(Task.name == task_id).first()
+        task_to_delete = db.query(Task).filter(Task.id == task_id).first()
 
         # Если задача не найдена, выбрасываем ошибку
         if task_to_delete is None:
